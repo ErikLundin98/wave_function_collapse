@@ -54,7 +54,7 @@ function solve_wfc!(solution::Solution, updater::Function, validator::Function, 
         # calculate entropies
         entropies = solution_entropy!(solution, validator)
         # find minimum nonzero entropy, i.e. element with lowest possible amount of options
-        entropies[entropies.==0] .= Inf # If we have one option locked in, we do not want to select it
+        entropies[entropies.==0.0] .= Inf # If we have one option locked in, we do not want to select it
         entropies[entropies.==-Inf] .= Inf # If undefined, i.e. no options
         if all(isinf.(entropies))
             # make the final collapse

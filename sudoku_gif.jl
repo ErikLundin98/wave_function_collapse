@@ -25,9 +25,9 @@ end
 println("solving wfc")
 sudoku_wfc(load_board("resources/sudoku.csv", '\t'), (solution)->save_board!(solution, board_history))
 
-println("animating wfc")
-animation = @animate for i ∈ 1:size(board_history, 1)
-    plot_board(board_history[i])
-end
-println("saving wfc animation")
-gif(animation, "wfc_solution.gif", fps=90)
+# println("animating wfc")
+# animation = @animate for i ∈ 1:size(board_history, 1)
+#     plot_board(board_history[i])
+# end
+# println("saving wfc animation")
+# gif(animation, "wfc_solution.gif", fps=90)
