@@ -1,4 +1,6 @@
 using DelimitedFiles
+include("wfc.jl")
+
 
 struct Placement
     row::Int8
@@ -78,7 +80,7 @@ function load_board(f_name::String, delim::Char)::Matrix{Int8}
     readdlm(f_name, delim, Int8)
 end
 
-function main()
+function tests()
     board = load_board("puzzle.csv", '\t')
     sudoku = Sudoku(board)
 
@@ -91,6 +93,34 @@ function main()
     @assert make_placement!(sudoku, Int8(1), Int8(2), Int8(1))
 end
 
+function callback(solution::Solution)
+    board::Matrix = solution.environment.board
+    display(board)
+end
+
+function sudoku_wfc(board::Matrix{Int8}, callback::Function=nothing)::Nothing
+    ### Sudoku example
+    validator_func(sol::Solution, x::Int, i::CartesianIndex) = check_valid(sol.environment.board, Placement(i[1], i[2], x))
+    update_func(sol::Solution, x::Int, i::CartesianIndex) = make_placement!(sol.environment, Placement(i[1], i[2], x))
+    iteration = 1
+    weights::Matrix{Float64} = fill(1, size(board))
+    while true
+        print(iteration, ", ")
+        iteration += 1
+        solution = Solution{Sudoku}(9, (9, 9), Sudoku(copy(board)))
+        solution.weights = weights
+        _, finished = solve_wfc!(solution, update_func, validator_func, callback)
+
+        if finished
+            display(solution.environment.board)
+            break
+        else
+            weights[sum.(solution.wave) .== 0] ./= 2
+            weights ./= sum(sum(weights))
+        end
+    end
+end
+
 if abspath(PROGRAM_FILE) == @__FILE__
-    main()
+    sudoku_wfc(load_board("resources/sudoku.csv", '\t'))
 end
